@@ -1,0 +1,12 @@
+# Real device credentials — never commit
+firmware/kalaneuvos_monitor/secrets.h
+
+# Arduino IDE / build artifacts
+.vs/
+build/
+*.suo
+*.user
+
+# OS junk
+.DS_Store
+Thumbs.db
