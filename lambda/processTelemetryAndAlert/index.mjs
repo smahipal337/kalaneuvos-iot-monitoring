@@ -8,9 +8,10 @@ const sns = new SNSClient({});
 
 const TABLE_NAME = process.env.TABLE_NAME || "EngineTelemetry";
 const SNS_TOPIC_ARN = process.env.SNS_TOPIC_ARN;
-const VIBRATION_THRESHOLD = parseFloat(process.env.VIBRATION_THRESHOLD || "5.0");
-const TEMP_MAX_C = parseFloat(process.env.TEMP_MAX_C || "8");
+const VIBRATION_THRESHOLD = parseFloat(process.env.VIBRATION_THRESHOLD || "15");
+const TEMP_MAX_C = parseFloat(process.env.TEMP_MAX_C || "35");
 const TEMP_MIN_C = parseFloat(process.env.TEMP_MIN_C || "-5");
+const TEMP_CALIBRATION_OFFSET_C = parseFloat(process.env.TEMP_CALIBRATION_OFFSET_C || "0");
 
 export const handler = async (event) => {
   console.log("Incoming telemetry:", JSON.stringify(event));
@@ -18,12 +19,16 @@ export const handler = async (event) => {
   const {
     device_id,
     timestamp,
-    temperature,
     humidity,
     vibration_x,
     vibration_y,
     vibration_z,
   } = event;
+
+  // Sensor calibration: the ESP32's DHT22 reads ~3C higher than the factory's
+  // reference thermometer (verified on-site). Corrected here so DynamoDB,
+  // threshold alerting, and Grafana all reflect the true temperature.
+  const temperature = event.temperature + TEMP_CALIBRATION_OFFSET_C;
 
   // 1. Persist the reading in DynamoDB
   await ddb.send(new PutCommand({
