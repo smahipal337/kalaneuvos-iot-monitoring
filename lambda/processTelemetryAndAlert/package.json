@@ -1,0 +1,12 @@
+{
+  "name": "process-telemetry-and-alert",
+  "version": "1.0.0",
+  "description": "AWS Lambda function invoked by an IoT Core rule: persists ESP32 telemetry to DynamoDB and publishes an SNS alert on threshold breach.",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-sns": "^3.0.0"
+  }
+}
