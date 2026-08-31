@@ -62,7 +62,7 @@ firmware/kalaneuvos_monitor/
   secrets.h.example        # template for WiFi/AWS/Blynk credentials (copy to secrets.h)
 lambda/processTelemetryAndAlert/
   index.mjs                # writes to DynamoDB, publishes an SNS alert on threshold breach
-  package.json              # AWS SDK v3 clients used (bundled in the Lambda Node.js runtime)
+  package.json             # AWS SDK v3 clients used (bundled in the Lambda Node.js runtime)
 sample_data/
   sample_telemetry.csv     # synthetic sample matching the real schema (not factory data)
 ```
@@ -76,7 +76,7 @@ sample_data/
    - your Blynk template ID/name and auth token (optional — only needed for the mobile mirror)
 3. Create a DynamoDB table with partition key `device_id` (String) and sort key `timestamp` (Number).
 4. Create an SNS topic and subscribe your email to it.
-5. Deploy `lambda/processTelemetryAndAlert/index.mjs` as a Lambda function (Node.js runtime). Give its execution role `dynamodb:PutItem` on the table and `sns:Publish` on the topic. Set environment variables `TABLE_NAME`, `SNS_TOPIC_ARN`, `VIBRATION_THRESHOLD`, `TEMP_MAX_C`, `TEMP_MIN_C`.
+5. Deploy `lambda/processTelemetryAndAlert/index.mjs` as a Lambda function (Node.js runtime). Give its execution role `dynamodb:PutItem` on the table and `sns:Publish` on the topic. Set environment variables `TABLE_NAME`, `SNS_TOPIC_ARN`, `VIBRATION_THRESHOLD`, `TEMP_MAX_C`, `TEMP_MIN_C`, and `TEMP_CALIBRATION_OFFSET_C` (added after on-site testing showed the DHT22 reading ~3°C above a factory reference thermometer; set to the signed correction your own sensor needs, e.g. `-3`, or `0` if your sensor is already accurate).
 6. In AWS IoT Core, create an IoT Rule on topic `esp32/telemetry` with a Lambda action pointing at that function.
 7. Point a Grafana (Cloud or self-hosted) DynamoDB data source at the table.
 8. Flash the ESP32 and power it on — the on-device screen shows live readings immediately; DynamoDB, the dashboard, and (if a threshold is breached) an email alert all update within seconds.
